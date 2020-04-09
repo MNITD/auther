@@ -1,0 +1,32 @@
+{
+  "name": "auther",
+  "version": "1.0.0",
+  "description": "Simple auth server on node for demo purposes",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --exec babel-node src/server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MNITD/auther.git"
+  },
+  "keywords": [
+    "auth",
+    "0auth",
+    "demo"
+  ],
+  "author": "MNITD",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MNITD/auther/issues"
+  },
+  "homepage": "https://github.com/MNITD/auther#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/node": "^7.8.7",
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "nodemon": "^2.0.3"
+  }
+}
