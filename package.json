@@ -4,7 +4,11 @@
   "description": "Simple auth server on node for demo purposes",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node src/server"
+    "start": "nodemon --exec babel-node src/server",
+    "prebuild": "rimraf dist",
+    "build": "babel src --out-dir dist",
+    "preserve": "npm run build",
+    "serve": "node dist"
   },
   "repository": {
     "type": "git",
@@ -27,6 +31,7 @@
     "@babel/node": "^7.8.7",
     "@babel/plugin-transform-runtime": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
-    "nodemon": "^2.0.3"
+    "nodemon": "^2.0.3",
+    "rimraf": "^3.0.2"
   }
 }
