@@ -1,0 +1,7 @@
+version: '3.4'
+services:
+  auth_server:
+    command: npm run serve
+    restart: always
+    environment:
+      - NODE_ENV=production

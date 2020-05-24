@@ -1,0 +1,8 @@
+version: '3.4'
+services:
+  auth_server:
+    command: npm start
+    volumes:
+      - ./auth_server/src:/usr/auth_server/src
+    environment:
+      NODE_ENV: development

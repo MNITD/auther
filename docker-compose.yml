@@ -1,0 +1,19 @@
+version: '3.4'
+services:
+  auth_server:
+    build: ./auth_server
+    depends_on:
+      - postgres
+    env_file: .env
+    ports:
+      - "9000:9000"
+  postgres:
+    image: postgres:11.4-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./auth_server/db:/docker-entrypoint-initdb.d
