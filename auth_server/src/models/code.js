@@ -16,7 +16,7 @@ const Code = db.define(
       allowNull: false,
     },
     expires_at: {
-      type: DataTypes.STRING,
+      type: Sequelize.TIMESTAMP,
       allowNull: false,
     },
     code_challenge: {
