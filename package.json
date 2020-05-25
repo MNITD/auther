@@ -4,7 +4,7 @@
   "description": "Simple auth server on node for demo purposes",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node auth_server/src/server",
+    "start": "nodemon --exec babel-node auth_server/src",
     "prebuild": "rimraf dist",
     "build": "babel auth_server/src --out-dir dist",
     "preserve": "npm run build",
@@ -33,5 +33,8 @@
     "@babel/preset-env": "^7.9.5",
     "nodemon": "^2.0.3",
     "rimraf": "^3.0.2"
+  },
+  "dependencies": {
+    "sequelize": "^5.21.10"
   }
 }
