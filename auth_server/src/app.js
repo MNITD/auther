@@ -42,7 +42,6 @@ app.get('/', (req, res) => {
 
 app.get('/authorize', (req, res) => {
   // TODO check whether client with the following id exist
-  // TODO check whether client with the following id exist
 
   const options = {
     name: 'Auther Login',
@@ -62,7 +61,6 @@ app.post('/authorize', async (req, res) => {
 })
 
 app.get('/register', (req, res) => {
-  // TODO check whether client with the following id exist
   // TODO check whether client with the following id exist
 
   const options = {
@@ -84,7 +82,7 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/token', (req, res) => {
-  if (req.query.grant_type === 'authorization_code') {
+  if (req.body.grant_type === 'authorization_code') {
     return AuthorizationCodeFlow.obtainingToken(req, res)
   }
 
