@@ -2,6 +2,7 @@ import {Sequelize, DataTypes} from 'sequelize'
 
 import db from '../db'
 import Client from '../models/client'
+import User from 'src/models/user'
 
 const Code = db.define(
   'code',
@@ -31,6 +32,14 @@ const Code = db.define(
       type: DataTypes.UUID,
       references: {
         model: Client,
+        key: 'id',
+        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+      },
+    },
+    user_id: {
+      type: DataTypes.UUID,
+      references: {
+        model: User,
         key: 'id',
         deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
       },

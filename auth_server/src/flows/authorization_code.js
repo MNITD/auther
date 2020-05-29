@@ -7,6 +7,7 @@ import Code from 'src/models/code'
 import Token from 'src/models/token'
 
 import {decrypt} from 'src/utils/decrypt'
+import {generateTokenPair, REFRESH_EXPIRATION_TIME} from 'src/utils/generateTokenPair'
 
 const CODE_EXPIRATION_TIME = 60 * 1000
 
@@ -58,33 +59,50 @@ export const obtainingToken = async (req, res) => {
   if (missingFields.length)
     return res.status(400).send({error: `Following columns should be defined: [ ${missingFields.join(', ')} ]`})
 
-  const [codeErr, foundCode] = await joinCatch(Code.findOne({where: {id: req.query.code}}))
+  const [codeErr, code] = await joinCatch(Code.findOne({where: {id: req.query.code}}))
 
   if (codeErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
-  if (!foundCode) return res.status(400).send({error: 'Code is incorrect'})
+  if (!code) return res.status(400).send({error: 'Code is incorrect'})
+
+  if (code.expires_at > Date.now()) return res.status(400).send({error: 'Code is expired'})
 
   const [clientErr, client] = await joinCatch(Client.findOne({where: {client_id: req.query.client_id}}))
 
   if (clientErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
   if (!client) return res.status(400).send({error: 'Client not found'})
 
-  if (req.query.redirect_uri !== foundCode.redirect_uri) return res.status(400).send({error: 'Redirect url is incorrect'})
+  if (req.query.redirect_uri !== code.redirect_uri) return res.status(400).send({error: 'Redirect url is incorrect'})
 
-  const destroyCode = (code) => new Promise(async resolve => {
+  const destroyItem = (code) => new Promise(async resolve => {
     const [updateErr] = await joinCatch(code.destroy())
     if (updateErr) return res.status(500).send({error: 'There was a problem updating the information in database'})
     return resolve()
   })
 
-  if (client.id !== foundCode.client_id)
-    return destroyCode(foundCode).then(() => res.status(400).send({error: 'Client is incorrect'}))
+  if (client.id !== code.client_id)
+    return destroyItem(code).then(() => res.status(400).send({error: 'Client is incorrect'}))
 
   if (client.type === 'confidential' && decrypt(client.client_secret) !== req.query.client_secret)
-    return destroyCode(foundCode).then(() => res.status(400).send({error: 'Client is incorrect'}))
+    return destroyItem(code).then(() => res.status(400).send({error: 'Client is incorrect'}))
 
-  if (!(foundCode.code_challenge_method === 'S256' && verifyChallenge(req.query.code_verifier, foundCode.code_challenge)))
-    return destroyCode(foundCode).then(() => res.status(400).send({error: 'Incorrect code verifier'}))
+  if (!(code.code_challenge_method === 'S256' && verifyChallenge(req.query.code_verifier, code.code_challenge)))
+    return destroyItem(code).then(() => res.status(400).send({error: 'Incorrect code verifier'}))
 
+  const [tokenErr, foundToken] = await joinCatch(Token.findOne({where: {code_id: code.id}}))
+  if (tokenErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
+  if (foundToken) return destroyItem(foundToken).then(() => res.status(400).send({error: 'Code already used'}))
 
+  const [createErr, newToken] = await joinCatch(Token.create({
+    client_id: client.id,
+    code_id: code.id,
+    user_id: code.user_id,
+    expires_at: Date.now() + REFRESH_EXPIRATION_TIME,
+  }))
 
+  if (createErr) return res.status(500).send({error: 'There was a problem updating the information in database'})
+
+  const scopes = {} // TODO get scopes by client_id
+  const audience = [] // TODO get audience from resource servers by scopes via client_id
+
+  res.status(200).send(await generateTokenPair(scopes, audience, code.user_id, newToken.id));
 }
