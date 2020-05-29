@@ -4,4 +4,4 @@ services:
     command: npm run serve
     restart: always
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production

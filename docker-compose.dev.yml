@@ -6,3 +6,6 @@ services:
       - ./auth_server/src:/usr/auth_server/src
     environment:
       NODE_ENV: development
+  auth_db:
+    ports:
+      - "5432:5432"
