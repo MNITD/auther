@@ -1,6 +1,6 @@
 # Auther
 
-Auth server with wide grant type support
+Authorization server with OAuth support and recommended usage patterns
 
 ## Development
 
@@ -14,8 +14,18 @@ $ npx babel-node scripts/cli secrets keypair [secret] keypair.json
 $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
-## Production
+## Production (not tested)
 
 ```
 $ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
+
+## DB structure
+
+![Test Image 1](images/auther-DB-structure.png)
+
+## Supported grants
+
+### Authorization Code Grant Flow with PKCE
+
+![Test Image 1](images/Authorization Code Grant Flow.png)
