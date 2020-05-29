@@ -14,7 +14,7 @@ const Token = db.define(
       primaryKey: true,
     },
     expires_at: {
-      type: Sequelize.TIMESTAMP,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     user_id: {
