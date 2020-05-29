@@ -8,6 +8,7 @@ import Code from 'src/models/code'
 import {joinCatch} from 'src/utils/joinCatch'
 
 import * as AuthorizationCodeFlow from 'src/flows/authorization_code'
+import bcrypt from 'bcrypt'
 
 const app = express()
 
@@ -55,6 +56,15 @@ app.get('/authorize', (req, res) => {
 
 app.post('/authorize', async (req, res) => {
   if (req.query.response_type === 'code') {
+    const {username, password} = req.body
+
+    const [userErr, user] = await joinCatch(User.findOne({where: {username}}))
+    if (userErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
+    if (!user) return res.status(404).send({error: 'User not found'})
+
+    if (await bcrypt.compare(password, user.password)) req.user = user
+    else res.status(401).send({error: 'Access denied'})
+
     return AuthorizationCodeFlow.obtainingGrant(req, res)
   }
   return res.status(400).send({error: 'Authorization response type is not supported'})
@@ -73,8 +83,19 @@ app.get('/register', (req, res) => {
   res.status(200).send(getForm(options))
 })
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   if (req.query.response_type === 'code') {
+    const {username, password} = req.body
+
+    const [userErr, user] = await joinCatch(User.findOne({where: {username}}))
+    if (userErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
+    if (user) return res.status(409).send({error: 'Username is not available'})
+
+    const [createErr, newUser] = await joinCatch(User.create({username, password: await bcrypt.hash(password, 10)}))
+    if (createErr) return res.status(500).send({error: 'There was a problem updating the information in database'})
+
+    req.user = newUser
+
     return AuthorizationCodeFlow.obtainingGrant(req, res)
   }
 

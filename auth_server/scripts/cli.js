@@ -8,9 +8,9 @@ const clients = program.command('clients')
 const secrets = program.command('secrets')
 
 secrets
-  .command('keypair [passphrase] <dist>')
+  .command('keypair <dist>')
   .description('generate public/private keys')
-  .action(async (passphrase, dist) => {
+  .action(async (dist) => {
     const pair = await new Promise((res) =>
       generateKeyPair('rsa', {
         modulusLength: 4096,
@@ -19,10 +19,8 @@ secrets
           format: 'pem',
         },
         privateKeyEncoding: {
-          passphrase,
           type: 'pkcs8',
           format: 'pem',
-          cipher: 'aes-256-cbc',
         },
       }, (err, publicKey, privateKey) => {
         if (!err) res({publicKey, privateKey})

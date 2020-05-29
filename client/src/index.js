@@ -67,13 +67,14 @@ clientApp.get('/cb', async (req, res) => {
 
   if (err) return res.status(400).send({error: 'Error during obtaining token', details: err.response?.data || err})
 
-  simpleStorage['tokens'] = data
+  simpleStorage['tokens'] = data.data
 
   res.redirect('/secret')
 })
 
 clientApp.get('/secret', (req, res) => {
-  res.status(200).send(`Here are your tokens: ${simpleStorage['tokens']}`)
+  const {access_token, refresh_token} = simpleStorage['tokens']
+  res.status(200).send(`Here are your access token: ${access_token}`)
 })
 
 clientApp.listen(port, () => {

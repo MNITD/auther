@@ -37,6 +37,7 @@ export const obtainingGrant = async (req, res) => {
     code_challenge: req.query.code_challenge,
     code_challenge_method: req.query.code_challenge_method,
     expires_at: Date.now() + CODE_EXPIRATION_TIME,
+    user_id: req.user.id
   }))
 
   if (createErr) return res.status(500).send({error: 'There was a problem adding the information in database'})

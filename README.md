@@ -7,7 +7,7 @@ Authorization server with OAuth support and recommended usage patterns
 -  Create `.env` file using example `.env.example`
 -  Create public/private keypair file and move it to `src/data`
 ```
-$ npx babel-node scripts/cli secrets keypair [secret] keypair.json
+$ npx babel-node scripts/cli secrets keypair keypair.json
 ```
 - Run docker compose 
 ```
