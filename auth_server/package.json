@@ -4,11 +4,11 @@
   "description": "Simple auth server on node for demo purposes",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node auth_server/src",
+    "start": "nodemon --exec babel-node src/server.js",
     "prebuild": "rimraf dist",
-    "build": "babel auth_server/src --out-dir dist",
+    "build": "babel src --out-dir dist",
     "preserve": "npm run build",
-    "serve": "node dist"
+    "serve": "node dist/server.js"
   },
   "repository": {
     "type": "git",
@@ -26,15 +26,23 @@
   },
   "homepage": "https://github.com/MNITD/auther#readme",
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/node": "^7.8.7",
-    "@babel/plugin-transform-runtime": "^7.9.0",
-    "@babel/preset-env": "^7.9.5",
-    "nodemon": "^2.0.3",
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.1",
+    "@babel/node": "^7.10.1",
+    "@babel/plugin-transform-runtime": "^7.10.1",
+    "@babel/preset-env": "^7.10.1",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "commander": "^5.1.0",
+    "nodemon": "^2.0.4",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "sequelize": "^5.21.10"
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "pg": "^8.2.1",
+    "pkce-challenge": "^2.1.0",
+    "ramda": "^0.27.0",
+    "sequelize": "^5.21.11"
   }
 }
