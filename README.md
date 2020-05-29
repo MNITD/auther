@@ -28,4 +28,4 @@ $ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 ### Authorization Code Grant Flow with PKCE
 
-![Test Image 1](images/Authorization Code Grant Flow.png)
+![Test Image 1](images/Authorization-Code-Grant-Flow.png)
