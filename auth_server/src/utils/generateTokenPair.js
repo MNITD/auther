@@ -1,15 +1,21 @@
 import jwt from 'jsonwebtoken'
-import uuid4 from 'uuid/v4'
-
-const {PRIVATE_KEY} = process.env
+import {v4 as uuid4} from 'uuid'
+import fs from 'fs'
+import path from 'path'
 
 export const ACCESS_EXPIRATION_TIME = 5 * 60 * 1000
 export const REFRESH_EXPIRATION_TIME = 60 * 60 * 1000
 
 export const generateToken = (payload, options) => new Promise((res, rej) => {
-  jwt.sign(payload, PRIVATE_KEY, options, (err, token) => {
-    if (err) return rej(err)
-    return res(token)
+  fs.readFile(path.resolve(__dirname, '../data/keypair.json'), (err, data) => {
+    try {
+      jwt.sign(payload, JSON.parse(data).privateKey, options, (err, token) => {
+        if (err) return rej(err)
+        return res(token)
+      })
+    } catch (err) {
+      return rej(err)
+    }
   })
 })
 
