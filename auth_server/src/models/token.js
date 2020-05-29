@@ -3,7 +3,6 @@ import {Sequelize, DataTypes} from 'sequelize'
 import db from '../db'
 import User from '../models/user'
 import Client from '../models/client'
-import Code from '../models/code'
 
 const Token = db.define(
   'token',
@@ -35,11 +34,7 @@ const Token = db.define(
     },
     code_id: {
       type: DataTypes.UUID,
-      references: {
-        model: Code,
-        key: 'id',
-        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
-      },
+      allowNull: false,
     },
   },
   {
