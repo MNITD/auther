@@ -5,7 +5,7 @@ Auth server with wide grant type support
 ## Development
 
 -  Create `.env` file using example `.env.example`
--  Create public/private keypair then move to `src/data`
+-  Create public/private keypair file and move it to `src/data`
 ```
 $ npx babel-node scripts/cli secrets keypair [secret] keypair.json
 ```
