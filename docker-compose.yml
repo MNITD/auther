@@ -17,5 +17,16 @@ services:
     volumes:
       - authdata:/var/lib/postgresql/data
       - ./auth_server/db:/docker-entrypoint-initdb.d
+  client:
+    build: ./client
+    depends_on:
+      - auth_server
+    environment:
+      CLIENT_ID: ${CLIENT_ID}
+      CLIENT_SECRET: ${CLIENT_SECRET}
+      CLIENT_REDIRECT_URI: ${CLIENT_REDIRECT_URI}
+      AUTH_SERVER_HOST: ${AUTH_SERVER_HOST}
+    ports:
+      - "5000:5000"
 volumes:
   authdata:

@@ -5,3 +5,8 @@ services:
     restart: always
     environment:
       NODE_ENV: production
+  client:
+    command: npm run serve
+    restart: always
+    environment:
+      NODE_ENV: production

@@ -9,3 +9,9 @@ services:
   auth_db:
     ports:
       - "5432:5432"
+  client:
+    command: npm start
+    volumes:
+      - ./client/src:/usr/client/src
+    environment:
+      NODE_ENV: development
