@@ -37,13 +37,23 @@ const getForm = (options) => `
   </html>
 `
 
+const checkClientData = async (req, res, next) => {
+  const decodedRedirectUri = decodeURIComponent(req.query.redirect_uri)
+
+  const [foundErr, client] = await joinCatch(Client.findOne({where: {client_id: req.query.client_id}}))
+
+  if (foundErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
+  if (!client) return res.status(400).send({error: 'Client not found'})
+  if (!client.redirect_url.includes(decodedRedirectUri)) return res.status(400).send({error: 'Redirect url is incorrect'})
+
+  next()
+}
+
 app.get('/', (req, res) => {
   res.status(200).send('Auther API')
 })
 
-app.get('/authorize', (req, res) => {
-  // TODO check whether client with the following id exist
-
+app.get('/authorize', checkClientData, async (req, res) => {
   const options = {
     name: 'Auther Login',
     originalUrl: req.originalUrl,
@@ -70,9 +80,7 @@ app.post('/authorize', async (req, res) => {
   return res.status(400).send({error: 'Authorization response type is not supported'})
 })
 
-app.get('/register', (req, res) => {
-  // TODO check whether client with the following id exist
-
+app.get('/register', checkClientData, async (req, res) => {
   const options = {
     name: 'Auther Register',
     originalUrl: req.originalUrl,

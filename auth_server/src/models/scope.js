@@ -31,4 +31,6 @@ const Scope = db.define(
     timestamps: false,
   })
 
+Scope.belongsTo(ResourceServer, {foreignKey: 'resource_server_id'})
+
 export default Scope

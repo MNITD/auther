@@ -1,5 +1,6 @@
-import {isNil} from 'ramda'
+import {groupBy, isNil, path, pick, map, pipe} from 'ramda'
 import {verifyChallenge} from 'pkce-challenge'
+import {Op} from 'sequelize'
 
 import {joinCatch} from 'src/utils/joinCatch'
 import Client from 'src/models/client'
@@ -8,8 +9,12 @@ import Token from 'src/models/token'
 
 import {decrypt} from 'src/utils/decrypt'
 import {generateTokenPair, REFRESH_EXPIRATION_TIME} from 'src/utils/generateTokenPair'
+import Scope from 'src/models/scope'
+import ClientToScope from 'src/models/clientToScope'
+import ResourceServer from 'src/models/resourceServer'
 
 const CODE_EXPIRATION_TIME = 60 * 1000
+const {in: opIn} = Op
 
 export const obtainingGrant = async (req, res) => {
   const requiredFields = [
@@ -37,7 +42,7 @@ export const obtainingGrant = async (req, res) => {
     code_challenge: req.query.code_challenge,
     code_challenge_method: req.query.code_challenge_method,
     expires_at: Date.now() + CODE_EXPIRATION_TIME,
-    user_id: req.user.id
+    user_id: req.user.id,
   }))
 
   if (createErr) return res.status(500).send({error: 'There was a problem adding the information in database'})
@@ -66,7 +71,19 @@ export const obtainingToken = async (req, res) => {
 
   if (Date.now() > code.expires_at) return res.status(400).send({error: 'Code is expired'})
 
-  const [clientErr, client] = await joinCatch(Client.findOne({where: {client_id: req.body.client_id}}))
+  const [clientErr, client] = await joinCatch(Client.findOne({
+    where: {client_id: req.body.client_id},
+  }))
+
+  const [clientToScopesErr, clientToScopes] = await joinCatch(ClientToScope.findAll({where: {client_id: client.id}}))
+  if (clientToScopesErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
+
+  const [scopesErr, scopes] = await joinCatch(Scope.findAll({
+      where: {id: {[opIn]: clientToScopes.map(cts => cts.scope_id)}},
+      include: ResourceServer,
+    },
+  ))
+  if (scopesErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
 
   if (clientErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
   if (!client) return res.status(400).send({error: 'Client not found'})
@@ -101,9 +118,12 @@ export const obtainingToken = async (req, res) => {
 
   if (createErr) return res.status(500).send({error: 'There was a problem updating the information in database'})
 
-  const scopes = {} // TODO get scopes by client_id
-  const audience = [] // TODO get audience from resource servers by scopes via client_id
+  const preparedScopes = pipe(
+    groupBy(path(['resource_server', 'name'])),
+    map(map(path(['name']))),
+  )(scopes)
 
-  console.log('scopes, audience, code.user_id, newToken.id', scopes, audience, code.user_id, newToken.id);
-  res.status(200).send(await generateTokenPair(scopes, audience, code.user_id, newToken.id));
+  const audience = Object.keys(preparedScopes)
+
+  res.status(200).send(await generateTokenPair(preparedScopes, audience, code.user_id, newToken.id))
 }
