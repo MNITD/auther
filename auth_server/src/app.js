@@ -1,5 +1,9 @@
 import express from 'express'
 import bodyParser from 'body-parser'
+import {JWK} from 'node-jose'
+import fs from 'fs'
+import path from 'path'
+import bcrypt from 'bcrypt'
 
 import User from 'src/models/user'
 import Client from 'src/models/client'
@@ -8,7 +12,6 @@ import Code from 'src/models/code'
 import {joinCatch} from 'src/utils/joinCatch'
 
 import * as AuthorizationCodeFlow from 'src/flows/authorization_code'
-import bcrypt from 'bcrypt'
 
 const app = express()
 
@@ -123,7 +126,15 @@ app.post('/revoke', (req, res) => {
 })
 
 app.get('/.well-known/jwks.json', (req, res) => {
-  res.status(200).send({keys: []})
+  fs.readFile(path.resolve(__dirname, './data/keypair.json'), async (err, data) => {
+    try {
+      const {publicKey} = JSON.parse(data)
+      const jwk = await JWK.asKey(publicKey, "pem");
+      res.status(200).send({keys: [jwk]})
+    } catch (err) {
+      res.status(500).send({error: 'There was an problem finding jwk', details: err})
+    }
+  })
 })
 
 export default app

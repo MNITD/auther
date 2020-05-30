@@ -1,4 +1,4 @@
-import {groupBy, isNil, path, pick, map, pipe} from 'ramda'
+import {groupBy, isNil, path, map, pipe} from 'ramda'
 import {verifyChallenge} from 'pkce-challenge'
 import {Op} from 'sequelize'
 
