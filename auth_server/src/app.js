@@ -129,7 +129,9 @@ app.get('/.well-known/jwks.json', (req, res) => {
   fs.readFile(path.resolve(__dirname, './data/keypair.json'), async (err, data) => {
     try {
       const {publicKey} = JSON.parse(data)
-      const jwk = await JWK.asKey(publicKey, "pem");
+      const jwk = await JWK.asKey(publicKey, 'pem').then(result => result.toJSON())
+      jwk.use = 'sig'
+      jwk.alg = 'RS256'
       res.status(200).send({keys: [jwk]})
     } catch (err) {
       res.status(500).send({error: 'There was an problem finding jwk', details: err})
