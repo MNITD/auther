@@ -115,7 +115,6 @@ export const obtainingToken = async (req, res) => {
     user_id: code.user_id,
     expires_at: Date.now() + REFRESH_EXPIRATION_TIME,
   }))
-
   if (createErr) return res.status(500).send({error: 'There was a problem updating the information in database'})
 
   const preparedScopes = pipe(
@@ -125,5 +124,5 @@ export const obtainingToken = async (req, res) => {
 
   const audience = Object.keys(preparedScopes)
 
-  res.status(200).send(await generateTokenPair(preparedScopes, audience, code.user_id, newToken.id))
+  return res.status(200).send(await generateTokenPair(preparedScopes, audience, code.user_id, newToken.id))
 }

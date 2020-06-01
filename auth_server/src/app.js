@@ -13,6 +13,7 @@ import Token from 'src/models/token'
 import {joinCatch} from 'src/utils/joinCatch'
 
 import * as AuthorizationCodeFlow from 'src/flows/authorization_code'
+import * as RefreshTokenFlow from 'src/flows/refresh_token'
 import {verifyToken} from 'src/utils/token'
 
 const app = express()
@@ -118,6 +119,9 @@ app.post('/register', async (req, res) => {
 app.post('/token', (req, res) => {
   if (req.body.grant_type === 'authorization_code') {
     return AuthorizationCodeFlow.obtainingToken(req, res)
+  }
+  if (req.body.grant_type === 'refresh_token') {
+    return RefreshTokenFlow.obtainingToken(req, res)
   }
 
   return res.status(400).send({error: 'Grant type is not supported'})

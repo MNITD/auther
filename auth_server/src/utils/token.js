@@ -45,11 +45,11 @@ export const generateTokenPair = async (scopes, audience, subject, refreshId) =>
   return {access_token, refresh_token}
 }
 
-export const verifyToken = (token) => new Promise((res, rej) => {
+export const verifyToken = (token, options) => new Promise((res, rej) => {
   fs.readFile(path.resolve(__dirname, '../data/keypair.json'), (err, data) => {
     try {
       const {publicKey} = JSON.parse(data)
-      jwt.verify(token, publicKey, (err, decoded) => {
+      jwt.verify(token, publicKey, options, (err, decoded) => {
         if (err) return rej(err)
         return res(decoded)
       })
