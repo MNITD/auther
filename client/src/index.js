@@ -98,7 +98,6 @@ clientApp.get('/secret', async (req, res) => {
     simpleStorage['tokens'] = data.data
   }
 
-
   const [err, data] = await joinCatch(axios.get(
     'http://resource_server:3000/secret',
     {headers: {Authorization: `Bearer ${access_token}`}},
@@ -119,8 +118,22 @@ clientApp.get('/secret', async (req, res) => {
         <div style="width: 600px;background: lightgray; word-wrap: break-word;">${access_token}</div>
         <p>Here is secret from resource server:</p>
         <div><span style="background: lightgray;">${data.data.secret}</span></div>
+        <br/>
+        <a href="/logout">Log out</a>
       </body>
     </html>`)
+})
+
+clientApp.get('/logout', async (req, res) => {
+  if (!simpleStorage['tokens']) return res.redirect('/')
+
+  const [err] = await joinCatch(axios.post(
+    'http://auth_server:9000/revoke',
+    {token: simpleStorage['tokens'].refresh_token},
+  ))
+  if (err) return res.status(400).send({error: 'There was an error revoking token'})
+
+  return res.redirect('/')
 })
 
 clientApp.listen(port, () => {

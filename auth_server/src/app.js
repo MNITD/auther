@@ -133,14 +133,14 @@ app.post('/revoke', async (req, res) => {
   const [err, decoded] = await joinCatch(verifyToken(req.body.token))
   if (err) return res.status(401).send({error: 'There was an problem verifying token'})
 
-  const [tokenErr, token] = await joinCatch(Token.findOne({where: {id: decoded.jwtid}}))
+  const [tokenErr, token] = await joinCatch(Token.findOne({where: {id: decoded.jti}}))
   if (tokenErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
   if (!token) return res.status(404).send({error: 'Token is not found'})
 
   const [destroyErr] = await joinCatch(token.destroy())
   if (destroyErr) return res.status(500).send({error: 'There was a problem updating the information in database'})
 
-  return res.status(200)
+  return res.status(200).send()
 })
 
 app.get('/.well-known/jwks.json', (req, res) => {
