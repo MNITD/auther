@@ -6,7 +6,12 @@ services:
     environment:
       NODE_ENV: production
   client:
-    command: npm run serve
+    command: npm start
+    restart: always
+    environment:
+      NODE_ENV: production
+  resource_server:
+    command: npm start
     restart: always
     environment:
       NODE_ENV: production

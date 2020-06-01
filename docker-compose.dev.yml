@@ -15,3 +15,9 @@ services:
       - ./client/src:/usr/client/src
     environment:
       NODE_ENV: development
+  resource_server:
+    command: npm start
+    volumes:
+      - ./resource_server/src:/usr/resource_server/src
+    environment:
+      NODE_ENV: development
