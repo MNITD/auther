@@ -11,7 +11,7 @@ export const generateToken = (payload, options) => new Promise((res, rej) => {
   fs.readFile(path.resolve(__dirname, '../data/keypair.json'), async (err, data) => {
     try {
       const {privateKey} = JSON.parse(data)
-      const jwk = await JWK.asKey(privateKey, "pem");
+      const jwk = await JWK.asKey(privateKey, 'pem')
       jwt.sign(payload, privateKey, {...options, keyid: jwk.kid}, (err, token) => {
         if (err) return rej(err)
         return res(token)
@@ -45,3 +45,16 @@ export const generateTokenPair = async (scopes, audience, subject, refreshId) =>
   return {access_token, refresh_token}
 }
 
+export const verifyToken = (token) => new Promise((res, rej) => {
+  fs.readFile(path.resolve(__dirname, '../data/keypair.json'), (err, data) => {
+    try {
+      const {publicKey} = JSON.parse(data)
+      jwt.verify(token, publicKey, (err, decoded) => {
+        if (err) return rej(err)
+        return res(decoded)
+      })
+    } catch (err) {
+      return rej(err)
+    }
+  })
+})
