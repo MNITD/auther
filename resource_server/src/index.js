@@ -25,7 +25,6 @@ app.get('/secret', async (req, res) => {
       if (decoded && decoded.scopes[RESOURCE_SERVER_NAME].includes('scope1')) {
         return res.status(200).send({secret: 'SOMESECRETSTOREDINRESOURCESERVER'})
       }
-      console.log('decoded', decoded)
       return res.status(403).send({error: 'Permission denied'})
     })
   } else {

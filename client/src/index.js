@@ -73,15 +73,40 @@ clientApp.get('/cb', async (req, res) => {
 })
 
 clientApp.get('/secret', async (req, res) => {
-  if(!simpleStorage['tokens']) return res.redirect('/')
+  if (!simpleStorage['tokens']) return res.redirect('/')
 
-  const {access_token, refresh_token} = simpleStorage['tokens']
+  const {access_token, refresh_token, expired_at, refresh_expired_at} = simpleStorage['tokens']
+  if (expired_at < Date.now()) {
+    if (refresh_expired_at < Date.now()) {
+      simpleStorage['tokens'] = null
+      return res.redirect('/')
+    }
+
+    const [err, data] = await joinCatch(axios.post(
+      'http://auth_server:9000/token',
+      {
+        refresh_token,
+        grant_type: 'refresh_token',
+        client_id: CLIENT_ID,
+      },
+    ))
+    if (err) {
+      simpleStorage['tokens'] = null
+      return res.redirect('/')
+    }
+
+    simpleStorage['tokens'] = data.data
+  }
+
 
   const [err, data] = await joinCatch(axios.get(
     'http://resource_server:3000/secret',
     {headers: {Authorization: `Bearer ${access_token}`}},
   ))
-  if(err) return res.status(400).send({error: 'There was a problem fetching data form resource server', details: err.response?.data || err})
+  if (err) return res.status(400).send({
+    error: 'There was a problem fetching data form resource server',
+    details: err.response?.data || err,
+  })
 
   res.status(200).send(`
     <html>

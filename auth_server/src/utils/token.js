@@ -4,8 +4,8 @@ import fs from 'fs'
 import path from 'path'
 import {JWK} from 'node-jose'
 
-export const ACCESS_EXPIRATION_TIME = 5 * 60 * 1000
-export const REFRESH_EXPIRATION_TIME = 60 * 60 * 1000
+export const ACCESS_EXPIRATION_TIME = 5 * 60 * 1000 // 5 minutes
+export const REFRESH_EXPIRATION_TIME = 60 * 60 * 1000 // 60 minutes
 
 export const generateToken = (payload, options) => new Promise((res, rej) => {
   fs.readFile(path.resolve(__dirname, '../data/keypair.json'), async (err, data) => {
@@ -42,7 +42,9 @@ export const generateTokenPair = async (scopes, audience, subject, refreshId) =>
     generateToken({scopes}, accessOptions),
     generateToken({scopes}, refreshOptions),
   ])
-  return {access_token, refresh_token}
+  const expired_at = Date.now() + ACCESS_EXPIRATION_TIME
+  const refresh_expired_at = Date.now() + REFRESH_EXPIRATION_TIME
+  return {access_token, refresh_token, expired_at, refresh_expired_at, token_type: "bearer"}
 }
 
 export const verifyToken = (token, options) => new Promise((res, rej) => {
