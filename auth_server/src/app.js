@@ -4,14 +4,16 @@ import {JWK} from 'node-jose'
 import fs from 'fs'
 import path from 'path'
 import bcrypt from 'bcrypt'
+import {isNil} from 'ramda'
 
 import User from 'src/models/user'
 import Client from 'src/models/client'
-import Code from 'src/models/code'
+import Token from 'src/models/token'
 
 import {joinCatch} from 'src/utils/joinCatch'
 
 import * as AuthorizationCodeFlow from 'src/flows/authorization_code'
+import {verifyToken} from 'src/utils/token'
 
 const app = express()
 
@@ -121,8 +123,20 @@ app.post('/token', (req, res) => {
   return res.status(400).send({error: 'Grant type is not supported'})
 })
 
-app.post('/revoke', (req, res) => {
-  res.status(200).send('revoke')
+app.post('/revoke', async (req, res) => {
+  if (isNil(req.body.token)) return res.status(400).send({error: 'Following columns should be defined: [ token ]'})
+
+  const [err, decoded] = await joinCatch(verifyToken(req.body.token))
+  if (err) return res.status(401).send({error: 'There was an problem verifying token'})
+
+  const [tokenErr, token] = await joinCatch(Token.findOne({where: {id: decoded.jwtid}}))
+  if (tokenErr) return res.status(500).send({error: 'There was a problem finding the information in database'})
+  if (!token) return res.status(404).send({error: 'Token is not found'})
+
+  const [destroyErr] = await joinCatch(token.destroy())
+  if (destroyErr) return res.status(500).send({error: 'There was a problem updating the information in database'})
+
+  return res.status(200)
 })
 
 app.get('/.well-known/jwks.json', (req, res) => {

@@ -8,7 +8,7 @@ import Code from 'src/models/code'
 import Token from 'src/models/token'
 
 import {decrypt} from 'src/utils/decrypt'
-import {generateTokenPair, REFRESH_EXPIRATION_TIME} from 'src/utils/generateTokenPair'
+import {generateTokenPair, REFRESH_EXPIRATION_TIME} from 'src/utils/token'
 import Scope from 'src/models/scope'
 import ClientToScope from 'src/models/clientToScope'
 import ResourceServer from 'src/models/resourceServer'
