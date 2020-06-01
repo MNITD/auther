@@ -1,6 +1,6 @@
 FROM node:12
 
-WORKDIR /usr/client
+WORKDIR /usr/resource_server
 COPY package*.json ./
 
 RUN npm install

@@ -22,9 +22,10 @@ app.get('/secret', async (req, res) => {
 
     jwt.verify(token, getKey, {audience: RESOURCE_SERVER_NAME}, (err, decoded) => {
       if (err) return res.status(401).send({error: 'Unauthorized'})
-      if (decoded && decoded.scopes[RESOURCE_SERVER_NAME]['scope1']) {
+      if (decoded && decoded.scopes[RESOURCE_SERVER_NAME].includes('scope1')) {
         return res.status(200).send({secret: 'SOMESECRETSTOREDINRESOURCESERVER'})
       }
+      console.log('decoded', decoded)
       return res.status(403).send({error: 'Permission denied'})
     })
   } else {

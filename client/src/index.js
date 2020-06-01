@@ -72,9 +72,30 @@ clientApp.get('/cb', async (req, res) => {
   res.redirect('/secret')
 })
 
-clientApp.get('/secret', (req, res) => {
+clientApp.get('/secret', async (req, res) => {
+  if(!simpleStorage['tokens']) return res.redirect('/')
+
   const {access_token, refresh_token} = simpleStorage['tokens']
-  res.status(200).send(`Here are your access token: ${access_token}`)
+
+  const [err, data] = await joinCatch(axios.get(
+    'http://resource_server:3000/secret',
+    {headers: {Authorization: `Bearer ${access_token}`}},
+  ))
+  if(err) return res.status(400).send({error: 'There was a problem fetching data form resource server', details: err.response?.data || err})
+
+  res.status(200).send(`
+    <html>
+      <head>
+        <title>Auther - Demo Client - Secret</title>
+      </head>
+      <body>       
+        <h1>Auther - Demo Client - Secret</h1>
+        <p>Here is your access token:</p>
+        <div style="width: 600px;background: lightgray; word-wrap: break-word;">${access_token}</div>
+        <p>Here is secret from resource server:</p>
+        <div><span style="background: lightgray;">${data.data.secret}</span></div>
+      </body>
+    </html>`)
 })
 
 clientApp.listen(port, () => {
