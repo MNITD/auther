@@ -41,7 +41,8 @@ clientApp.get('/', (req, res) => {
       </head>
       <body>       
         <h1>Auther - Demo Client</h1>
-        <a href="${AUTH_SERVER_HOST}authorize?${queryParams}"><button type="submit">Connect to Auther</button></a>
+        <a href="${AUTH_SERVER_HOST}authorize?${queryParams}"><button>Connect to Auther</button></a>
+        <div><a href="/secret">Go to Secret</a></div>
       </body>
     </html>
   `
@@ -132,6 +133,8 @@ clientApp.get('/logout', async (req, res) => {
     {token: simpleStorage['tokens'].refresh_token},
   ))
   if (err) return res.status(400).send({error: 'There was an error revoking token'})
+
+  simpleStorage['tokens'] = null
 
   return res.redirect('/')
 })

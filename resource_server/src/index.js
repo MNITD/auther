@@ -11,6 +11,21 @@ const app = express()
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
+app.get('/', async (req, res) => {
+  const homePage = `
+    <html>
+      <head>
+        <title>Auther - Demo Client</title>
+      </head>
+      <body>       
+        <h1>Auther - Resource Server</h1>
+        <a href="/secret">Go to Secret</a>
+      </body>
+    </html>
+  `
+  res.status(200).send(homePage)
+})
+
 app.get('/secret', async (req, res) => {
   const authHeader = req.get('Authorization') || ''
   const [bearer, token] = authHeader.split(' ')
