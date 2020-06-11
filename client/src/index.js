@@ -41,7 +41,7 @@ clientApp.get('/', (req, res) => {
       </head>
       <body>       
         <h1>Auther - Demo Client</h1>
-        <a href="${AUTH_SERVER_HOST}authorize?${queryParams}"><button>Connect to Auther</button></a>
+        <p><a href="${AUTH_SERVER_HOST}authorize?${queryParams}"><button>Connect to Auther</button></a><p>
         <div><a href="/secret">Go to Secret</a></div>
       </body>
     </html>
@@ -73,14 +73,27 @@ clientApp.get('/cb', async (req, res) => {
   res.redirect('/secret')
 })
 
+const secretPageUnauthorized = `
+        <html>
+          <head>
+            <title>Auther - Demo Client</title>
+          </head>
+          <body>       
+            <h1>Auther - Demo Client</h1>
+            <p>401 Unauthorized</p>
+            <div><a href="/">Home page</a></div>
+          </body>
+        </html>
+      `
+
 clientApp.get('/secret', async (req, res) => {
-  if (!simpleStorage['tokens']) return res.redirect('/')
+  if (!simpleStorage['tokens']) return res.status(401).send(secretPageUnauthorized)
 
   const {access_token, refresh_token, expired_at, refresh_expired_at} = simpleStorage['tokens']
   if (expired_at < Date.now()) {
     if (refresh_expired_at < Date.now()) {
       simpleStorage['tokens'] = null
-      return res.redirect('/')
+      return res.status(401).send(secretPageUnauthorized)
     }
 
     const [err, data] = await joinCatch(axios.post(
@@ -93,7 +106,7 @@ clientApp.get('/secret', async (req, res) => {
     ))
     if (err) {
       simpleStorage['tokens'] = null
-      return res.redirect('/')
+      return res.status(401).send(secretPageUnauthorized)
     }
 
     simpleStorage['tokens'] = data.data
